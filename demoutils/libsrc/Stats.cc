@@ -44,6 +44,7 @@ bool Stats::init()
 
 void Stats::clear()
 {
+    beginResetModel();
     for (int i = 0; i < NUM_CATEGORIES; i++)
     {
         _records[i].clear();
@@ -55,7 +56,7 @@ void Stats::clear()
 
     _layout_changed = false;
     _data_changed = false;
-    QAbstractItemModel::reset();
+    endResetModel();
 }
 
 void Stats::reset()
@@ -101,7 +102,6 @@ void Stats::updateView()
 {
     if (_layout_changed)
     {
-        QAbstractItemModel::reset();
         _layout_changed = false;
         _data_changed = false;
     }
@@ -177,7 +177,7 @@ void Stats::removeTimer( int which )
     Record* timer = &(_records[TIMER][which]);
     assert( timer->children.size() == 0 );
     Record* parent = &_headers[TIMER];
-    if (timer->parent >= 0)
+    if (timer->parent != nullptr)
     {
         parent = timer->parent;
     }

@@ -14,14 +14,14 @@ win32 {
 }
 else {
 	TEMPLATE = lib
-    DEFINES += HAVE_VA_COPY
+        DEFINES += HAVE_VA_COPY
 
-    QMAKE_CXXFLAGS += -fopenmp
 	macx {
 		DEFINES += DARWIN
 	}
 	else {
 		DEFINES += LINUX
+                QMAKE_CXXFLAGS += -fopenmp
 	}
 }
 
@@ -39,7 +39,9 @@ INCLUDEPATH += include
 #Input
 HEADERS += include/GQ*.h
 SOURCES += libsrc/GQ*.cc
-SOURCES += libsrc/GLee.c
+win32 {
+    SOURCES += libsrc/GLee.c
+}
 
 # Trimesh2
 INCLUDEPATH += ../trimesh2/include

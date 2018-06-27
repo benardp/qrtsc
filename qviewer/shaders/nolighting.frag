@@ -17,7 +17,7 @@ varying vec3			  vert_normal_world;
 
 void main()
 {
-	vec4 out_col = surfaceColor();
+    vec4 out_col = surfaceColor();
     out_col.a = 1.0;
 				      
     gl_FragColor = out_col;

@@ -9,7 +9,7 @@ http://gfx.cs.princeton.edu/proj/sugcon/
 
 HOW TO BUILD:
 
-You need Qt 4.6 or higher installed. 
+You need Qt 5.4 or higher installed. 
 
 On Mac or Linux:
 
@@ -40,3 +40,6 @@ More documentation forthcoming at some point (maybe).
 
 Any questions or problems, email fcole@csail.mit.edu
 May 21 2011
+
+Updated to build with Qt 5.4 and libQGLViewer 2.7 
+June 27 2018

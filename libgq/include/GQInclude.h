@@ -16,7 +16,7 @@ See the COPYING file for details.
 #define _GQ_INCLUDE_H_
 
 #ifdef DARWIN
-#    include <GLee.h>
+#    include <OpenGL.h>
 #    include <glu.h>
 #endif
 #ifdef LINUX
@@ -88,7 +88,6 @@ inline void reportGLError()
     if (error != 0)
     {
         qCritical("GL Error: %s\n", gluErrorString(error));
-        qFatal("GL Error: %s\n", gluErrorString(error));
     }
 }
 

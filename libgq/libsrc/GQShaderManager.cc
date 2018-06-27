@@ -327,7 +327,7 @@ void GQShaderManager::initialize()
                 assert(source_element.tagName() == "source");
 		
                 QString shaderfile = loadShaderFile(program_name, source_element.attribute("filename"));
-                source_files[num_source_files] = shaderfile.toAscii();
+                source_files[num_source_files] = shaderfile.toLatin1();
                 p_source_files[num_source_files] = source_files[num_source_files].data();
                 num_source_files++;
 
@@ -402,6 +402,8 @@ GQShaderRef GQShaderManager::bindProgram( const QString& name )
     }
 
     assert( _bound_textures.isEmpty() );
+
+    reportGLError();
 
     GLuint program_handle = _programs[program_index];
     glUseProgram(program_handle);

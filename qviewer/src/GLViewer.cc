@@ -18,6 +18,7 @@ See the COPYING file for details.
 #include <QDir>
 #include <QDebug>
 #include <QMouseEvent>
+#include <manipulatedCameraFrame.h>
 #include "Scene.h"
 #include "DialsAndKnobs.h"
 #include "Stats.h"
@@ -41,15 +42,15 @@ GLViewer::GLViewer(QWidget* parent) : QGLViewer( parent )
     qglviewer::ManipulatedFrame* new_frame = new qglviewer::ManipulatedFrame;
     new_frame->setReferenceFrame(_main_camera_frame);
     setManipulatedFrame(new_frame);
-    setMouseBinding(Qt::SHIFT + Qt::LeftButton, FRAME, ROTATE);
+    setMouseBinding(Qt::ShiftModifier, Qt::LeftButton, FRAME, ROTATE);
     
     connect(&camera_perspective, SIGNAL(valueChanged(bool)),
             this, SLOT(on_actionCamera_Perspective_toggled(bool)));
-    connect(_off_camera_frame, SIGNAL(manipulated()), this, SLOT(updateGL()));
-    connect(_off_camera_frame, SIGNAL(spun()), this, SLOT(updateGL()));
+    connect(_off_camera_frame, SIGNAL(manipulated()), this, SLOT(update()));
+    connect(_off_camera_frame, SIGNAL(spun()), this, SLOT(update()));
     
-    connect(&off_camera_view, SIGNAL(valueChanged(bool)), this, SLOT(updateGL()));
-    connect(&camera_perspective, SIGNAL(valueChanged(bool)), this, SLOT(updateGL()));
+    connect(&off_camera_view, SIGNAL(valueChanged(bool)), this, SLOT(update()));
+    connect(&camera_perspective, SIGNAL(valueChanged(bool)), this, SLOT(update()));
 }
 
 void GLViewer::resetView()
@@ -238,7 +239,7 @@ void GLViewer::saveScreenshot(QString filename)
     if (filename.endsWith("pfm")) {
         _hdr_screen_filename = filename;
         _save_hdr_screen = true;
-        updateGL(); 
+        update();
     } else {
         saveSnapshot(filename, true);
     }
@@ -251,7 +252,7 @@ void GLViewer::on_actionCamera_Perspective_toggled(bool checked)
     } else {
         camera()->setType(qglviewer::Camera::ORTHOGRAPHIC);
     }
-    updateGL();
+    update();
 }
 
 QPoint GLViewer::convertThumbnailCoords(const QPoint& p)
@@ -318,7 +319,7 @@ void GLViewer::keyPressEvent(QKeyEvent* event)
         } else {
             resetView();
         }
-        updateGL();
+        update();
     } else {
         QGLViewer::keyPressEvent(event);
     }

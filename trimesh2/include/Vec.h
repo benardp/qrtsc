@@ -409,6 +409,18 @@ static inline std::istream &operator >> (std::istream &is, Vec<D,T> &v)
 	return is;
 }
 
+// Utility functions for square and cube, to go along with sqrt and cbrt
+template <class T>
+static inline T sqr(const T &x)
+{
+    return x*x;
+}
+
+template <class T>
+static inline T cube(const T &x)
+{
+    return x*x*x;
+}
 
 // Functions on Vecs
 template <int D, class T>
@@ -472,20 +484,6 @@ template <class T>
 static inline T trinorm(const T &v0, const T &v1, const T &v2)
 {
 	return (typename T::value_type) 0.5 * ((v1 - v0) CROSS (v2 - v0));
-}
-
-
-// Utility functions for square and cube, to go along with sqrt and cbrt
-template <class T>
-static inline T sqr(const T &x)
-{
-	return x*x;
-}
-
-template <class T>
-static inline T cube(const T &x)
-{
-	return x*x*x;
 }
 
 

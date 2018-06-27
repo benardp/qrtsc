@@ -13,6 +13,10 @@ See the COPYING file for details.
 #include <QFileDialog>
 #include <QRegExp>
 #include <QSignalMapper>
+#include <QMessageBox>
+#include <QAction>
+#include <QMenu>
+#include <QMenuBar>
 
 #include "GLViewer.h"
 #include "MainWindow.h"
@@ -170,7 +174,7 @@ bool MainWindow::openScene( const QString& filename )
     _gl_viewer->setScene(_scene);
     _dials_and_knobs->load(_scene->dialsAndKnobsState());
     
-    _gl_viewer->updateGL();
+    _gl_viewer->update();
     
     _scene_name = QDir::fromNativeSeparators(filename);
     addCurrentSceneToRecentList();
@@ -200,7 +204,7 @@ void MainWindow::on_actionOpen_Recent_Scene_triggered(int which)
         QString fullpath = fileinfo.absoluteFilePath();
 
         openScene( _recent_scenes[which] );
-        _gl_viewer->updateGL();
+        _gl_viewer->update();
     }
 }
 
@@ -335,7 +339,7 @@ void MainWindow::setupDockWidgets(QMenu* menu)
         "Style" << "Vectors";
     _dials_and_knobs = new DialsAndKnobs(this, menu, other_docks);
     connect(_dials_and_knobs, SIGNAL(dataChanged()),
-        _gl_viewer, SLOT(updateGL()));
+        _gl_viewer, SLOT(update()));
 
     _console = new Console(this, menu);
     _console->installMsgHandler();
@@ -486,7 +490,7 @@ bool MainWindow::openCamera(const QString& filename)
         _gl_viewer->camera()->setFieldOfView(fov);
         fitViewerSize(sizex, sizey);
 
-        _gl_viewer->updateGL();
+        _gl_viewer->update();
 
         success = true;
     }
@@ -497,7 +501,7 @@ bool MainWindow::openCamera(const QString& filename)
 void MainWindow::setFoV(float degrees)
 {
     _gl_viewer->camera()->setFieldOfView( degrees * ( 3.1415926f / 180.0f ) );
-    _gl_viewer->updateGL();
+    _gl_viewer->update();
 }
 
 
@@ -518,14 +522,14 @@ void MainWindow::fitViewerSize(const QString& size)
 void MainWindow::on_actionReload_Shaders_triggered()
 {
     GQShaderManager::reload();
-    _gl_viewer->updateGL();
+    _gl_viewer->update();
 }
 
 void MainWindow::on_actionSmooth_Mesh_triggered()
 {
     if (_scene) {
         Rtsc::filter_mesh();
-        _gl_viewer->updateGL();
+        _gl_viewer->update();
     }
 }
 
@@ -533,7 +537,7 @@ void MainWindow::on_actionSmooth_Curvatures_triggered()
 {
     if (_scene) {
         Rtsc::filter_curv();
-        _gl_viewer->updateGL();
+        _gl_viewer->update();
     }
 }
     
@@ -541,7 +545,7 @@ void MainWindow::on_actionSmooth_Curvature_Deriv_triggered()
 {
     if (_scene) {
         Rtsc::filter_dcurv();
-        _gl_viewer->updateGL();
+        _gl_viewer->update();
     }
 }
 

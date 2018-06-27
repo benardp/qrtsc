@@ -14,8 +14,6 @@ win32 {
 }
 else {
     TEMPLATE = app
-    QMAKE_CXXFLAGS += -fopenmp
-    QMAKE_LFLAGS += -fopenmp
     macx {
         DEFINES += DARWIN
         UNAME = Darwin
@@ -35,6 +33,8 @@ else {
     else {
         DEFINES += LINUX
         UNAME = Linux
+        QMAKE_CXXFLAGS += -fopenmp
+        QMAKE_LFLAGS += -fopenmp
     }
 }
 
