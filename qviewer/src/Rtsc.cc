@@ -86,15 +86,16 @@ static dkBool single_pixel_lines("Style->Single Pixel Wide", false);
 static dkBool draw_edges("Style->Draw Edges", false);
     
 // Mesh colorization
-vector<Color> curv_colors, gcurv_colors;
+vector<Color> curv_colors, mcurv_colors, gcurv_colors;
 static QStringList mesh_color_types = QStringList() << "White" << "Gray" 
-    << "Black" << "Curvature" << "Gaussian C." << "Mesh" << "Depth"
+    << "Black" << "Curvature" << "Mean C." << "Gaussian C." << "Mesh" << "Depth"
     << "Normals" << "Texture";
 static dkStringList color_style("Style->Mesh Color", mesh_color_types);
+static dkFloat scaling_factor("Style->Gaussian C. factor", 1.f);
 
 // Lighting
 static QStringList lighting_types = QStringList() << "None" << "Lambertian" 
-    << "Lambertian2" << "Hemisphere" << "Shiny" 
+    << "Lambertian2" << "Thresholded" << "Hemisphere" << "Shiny" 
     << "Toon" << "Toon BW" << "Gooch";    
 static dkStringList lighting_style("Style->Lighting", lighting_types);
 vec light_direction;
@@ -293,19 +294,48 @@ void compute_curv_colors()
 }
 
 
-// Similar, but grayscale mapping of mean curvature H
+void compute_mcurv_colors()
+{
+	float cscale = 10.0f * feature_size;
+
+	int nv = themesh->vertices.size();
+	mcurv_colors.resize(nv);
+	for (int i = 0; i < nv; i++) {
+		float H = 0.5f * (themesh->curv1[i] + themesh->curv2[i]);
+		float c = (atan(H*cscale) + M_PI_2) / M_PI;
+		c = sqrt(c);
+		int C = int(min(max(256.0 * c, 0.0), 255.99));
+		mcurv_colors[i] = Color(C,C,C);
+	}
+}
+
+// Similar, but mapping of gaussian curvature K
 void compute_gcurv_colors()
 {
 	float cscale = 10.0f * feature_size;
 
 	int nv = themesh->vertices.size();
 	gcurv_colors.resize(nv);
+	float KMax = 0.0;
+	float KMin = 0.0;
 	for (int i = 0; i < nv; i++) {
-		float H = 0.5f * (themesh->curv1[i] + themesh->curv2[i]);
-		float c = (atan(H*cscale) + M_PI_2) / M_PI;
-		c = sqrt(c);
-		int C = int(min(max(256.0 * c, 0.0), 255.99));
-		gcurv_colors[i] = Color(C,C,C);
+		float K = themesh->curv1[i] * themesh->curv2[i];
+		if(K>KMax) KMax = K;
+		if(K<KMin) KMin = K;
+	}
+	printf("%f %f\n", KMin, KMax);
+	float dv = KMax - KMin;
+	for (int i = 0; i < nv; i++) {
+		float K = themesh->curv1[i] * themesh->curv2[i];
+		if(K < 0){
+			float c = log(1+scaling_factor*K/KMin);
+			int C = int(min(max(256.0 * c, 0.0), 255.99));
+			gcurv_colors[i] = Color(256-C,256-C,256);
+		}else{
+			float c = log(1+scaling_factor*K/KMax);
+			int C = int(min(max(256.0 * c, 0.0), 255.99));
+			gcurv_colors[i] = Color(256,256-C,256-C);
+		}
 	}
 }
     
@@ -350,6 +380,12 @@ void draw_base_mesh()
         glEnableClientState(GL_COLOR_ARRAY);
         glColorPointer(3, GL_FLOAT, 0,
             &curv_colors[0][0]);
+    } else if (color_style == "Mean C.") {
+        if (mcurv_colors.empty())
+            compute_mcurv_colors();
+        glEnableClientState(GL_COLOR_ARRAY);
+        glColorPointer(3, GL_FLOAT, 0,
+            &mcurv_colors[0][0]);
     } else if (color_style == "Gaussian C.") {
         if (gcurv_colors.empty())
             compute_gcurv_colors();
@@ -386,6 +422,8 @@ void draw_base_mesh()
                 shader = GQShaderManager::bindProgram("diffuse");
             } else if (lighting_style == "Lambertian2") {
                 shader = GQShaderManager::bindProgram("diffuse2");
+            } else if (lighting_style == "Thresholded") {
+                shader = GQShaderManager::bindProgram("thresholded"); 
             } else if (lighting_style == "Hemisphere") {
                 shader = GQShaderManager::bindProgram("hemisphere");
             } else if (lighting_style == "Shiny") {
@@ -1765,6 +1803,7 @@ void filter_mesh(int dummy = 0)
 	themesh->need_curvatures();
 	themesh->need_dcurv();
 	curv_colors.clear();
+	mcurv_colors.clear();
 	gcurv_colors.clear();
 	currsmooth *= 1.1f;
 }
@@ -1780,6 +1819,7 @@ void filter_normals(int dummy = 0)
 	themesh->need_curvatures();
 	themesh->need_dcurv();
 	curv_colors.clear();
+	mcurv_colors.clear();
 	gcurv_colors.clear();
 	currsmooth *= 1.1f;
 }
@@ -1793,6 +1833,7 @@ void filter_curv(int dummy = 0)
 	themesh->dcurv.clear();
 	themesh->need_dcurv();
 	curv_colors.clear();
+	mcurv_colors.clear();
 	gcurv_colors.clear();
 	currsmooth *= 1.1f;
 }
@@ -1804,6 +1845,7 @@ void filter_dcurv(int dummy = 0)
 	printf("\r");  fflush(stdout);
 	diffuse_dcurv(themesh, currsmooth);
 	curv_colors.clear();
+	mcurv_colors.clear();
 	gcurv_colors.clear();
 	currsmooth *= 1.1f;
 }
@@ -1821,6 +1863,7 @@ void subdivide_mesh(int dummy = 0)
 	themesh->need_curvatures();
 	themesh->need_dcurv();
 	curv_colors.clear();
+	mcurv_colors.clear();
 	gcurv_colors.clear();
 }
 
@@ -1867,6 +1910,9 @@ void initialize(TriMesh* mesh)
 	themesh->need_dcurv();
 	compute_feature_size();
 	currsmooth = 0.5f * themesh->feature_size();
+	curv_colors.clear();
+	mcurv_colors.clear();
+	gcurv_colors.clear();
 }
     
 } // namespace Rtsc

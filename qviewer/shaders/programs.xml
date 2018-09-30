@@ -46,6 +46,17 @@ See the COPYING file for details.
             <source filename="diffuse2.frag"/>
         </shader>
     </program>
+    <program name="thresholded">
+        <shader type="vertex">
+            <source filename="version.glsl"/>
+            <source filename="polygon_render.vert"/>
+        </shader>
+        <shader type="fragment">
+            <source filename="version.glsl"/>
+            <source filename="surface.glsl"/>
+            <source filename="thresholded.frag"/>
+        </shader>
+    </program>
     <program name="hemisphere">
         <shader type="vertex">
             <source filename="version.glsl"/>
