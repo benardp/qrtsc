@@ -13,12 +13,12 @@ See the COPYING file for details.
 
 \*****************************************************************************/
 
+#include <GQInclude.h>
 #include <QImage>
 #include <QColor>
 #include <QtGui>
 
 #include <GQImage.h>
-#include <GQInclude.h>
 #include <string.h>
 #include <stdio.h>
 

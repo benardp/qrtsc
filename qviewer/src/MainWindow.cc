@@ -9,6 +9,8 @@ See the COPYING file for details.
 
 \*****************************************************************************/
 
+#include "GLViewer.h"
+
 #include <QtGui>
 #include <QFileDialog>
 #include <QRegExp>
@@ -18,7 +20,6 @@ See the COPYING file for details.
 #include <QMenu>
 #include <QMenuBar>
 
-#include "GLViewer.h"
 #include "MainWindow.h"
 #include "Scene.h"
 #include "Rtsc.h"

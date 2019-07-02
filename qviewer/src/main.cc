@@ -27,6 +27,13 @@
 
 qrtscApp::qrtscApp(int& argc, char** argv) : QApplication(argc, argv)
 {
+	QSurfaceFormat format;
+	format.setVersion(2, 1);
+	format.setAlphaBufferSize(8);
+	format.setSamples(8);
+	format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+	QSurfaceFormat::setDefaultFormat(format);
+
     QString scene_name;
     
     QDir shaders_dir;

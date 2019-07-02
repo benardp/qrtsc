@@ -108,6 +108,15 @@ void GLViewer::setScene( Scene* scene )
     _inited = was_inited;
 }
 
+void GLViewer::initializeGL()
+{
+	initializeOpenGLFunctions();
+	qDebug() << "version: "
+		<< QLatin1String(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+	qDebug() << "GLSL version: "
+		<< QLatin1String(reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
+}
+
 void GLViewer::finishInit()
 {
     //resetView();

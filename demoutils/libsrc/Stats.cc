@@ -44,19 +44,17 @@ bool Stats::init()
 
 void Stats::clear()
 {
-    beginResetModel();
-    for (int i = 0; i < NUM_CATEGORIES; i++)
-    {
-        _records[i].clear();
-        _headers[i].children.clear();
-    }
+	for (int i = 0; i < NUM_CATEGORIES; i++)
+	{
+		_records[i].clear();
+		_headers[i].children.clear();
+	}
 
-    _timer_stack.clear();
-    _constant_stack.clear();
+	_timer_stack.clear();
+	_constant_stack.clear();
 
-    _layout_changed = false;
-    _data_changed = false;
-    endResetModel();
+	_layout_changed = false;
+	_data_changed = false;
 }
 
 void Stats::reset()

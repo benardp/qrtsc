@@ -31,11 +31,7 @@ using std::max;
 # define M_PI 3.14159265358979323846
 #endif
 
-#ifdef _WIN32
-  inline float cbrt(float arg) {
-    return pow(arg, 1.0f/3.0f);
-  }
-#endif
+
 
 class Color : public Vec<3,float> {
 public:

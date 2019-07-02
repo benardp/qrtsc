@@ -22,7 +22,7 @@ See the COPYING file for details.
 
 class Scene;
 
-class GLViewer : public QGLViewer
+class GLViewer : public QGLViewer, protected QOpenGLExtraFunctions
 {
     Q_OBJECT
 
@@ -45,6 +45,7 @@ public slots:
     virtual void keyPressEvent(QKeyEvent* event);
 
 protected:
+	virtual void initializeGL();
     virtual void draw();
     virtual void postDraw();
     virtual void resizeGL( int width, int height );

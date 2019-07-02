@@ -20,13 +20,9 @@ On Windows:
 
 Open the Qt command prompt, then
 
-qmake -r qviewer.pro
+qmake -tp vc -r qviewer.pro
 
 Then open qviewer.sln from Visual Studio and build normally.
-
-Tested on gcc + Ubuntu 10, gcc + Mac OSX 10.6, 
-and Visual Studio 2008 + Windows 7.
-
 
 
 HOW TO USE:
