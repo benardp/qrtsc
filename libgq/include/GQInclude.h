@@ -18,7 +18,8 @@ See the COPYING file for details.
 #include <QOpenGLExtraFunctions>
 
 #ifdef DARWIN
-#    include <OpenGL/glu.h>
+#   include <OpenGL/gl.h>
+#   include <OpenGL/glu.h>
 #endif
 #ifdef LINUX
 #    include <QVariant>

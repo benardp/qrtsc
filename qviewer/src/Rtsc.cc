@@ -1778,11 +1778,11 @@ void setLightDir(const vec& lightdir)
 void redraw()
 {
     if (background_style == "Black") {
-        glClearColor(0.0,0.0,0.0,0.0);
+        glClearColor(0.0,0.0,0.0,1.0);
     } else if (background_style == "Gray") {
-        glClearColor(0.5,0.5,0.5,0.0);
+        glClearColor(0.5,0.5,0.5,1.0);
     } else {
-        glClearColor(1.0,1.0,1.0,0.0);
+        glClearColor(1.0,1.0,1.0,1.0);
     }
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
