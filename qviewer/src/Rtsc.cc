@@ -86,9 +86,9 @@ static dkBool single_pixel_lines("Style->Single Pixel Wide", false);
 static dkBool draw_edges("Style->Draw Edges", false);
     
 // Mesh colorization
-vector<Color> curv_colors, mcurv_colors, gcurv_colors;
+vector<Color> curv_colors, mcurv_colors, gcurv_colors, rcurv_colors;
 static QStringList mesh_color_types = QStringList() << "White" << "Gray" 
-    << "Black" << "Curvature" << "Mean C." << "Gaussian C." << "Mesh" << "Depth"
+    << "Black" << "Curvature" << "Mean C." << "Gaussian C." << "Radial C." << "Mesh" << "Depth"
     << "Normals" << "Texture";
 static dkStringList color_style("Style->Mesh Color", mesh_color_types);
 static dkFloat scaling_factor("Style->Gaussian C. factor", 1.f);
@@ -319,24 +319,48 @@ void compute_gcurv_colors()
 	float KMax = 0.0;
 	float KMin = 0.0;
 	for (int i = 0; i < nv; i++) {
-		float K = themesh->curv1[i] * themesh->curv2[i];
+        float K = themesh->curv1[i] * themesh->curv2[i];
 		if(K>KMax) KMax = K;
 		if(K<KMin) KMin = K;
 	}
-	printf("%f %f\n", KMin, KMax);
-	float dv = KMax - KMin;
-	for (int i = 0; i < nv; i++) {
-		float K = themesh->curv1[i] * themesh->curv2[i];
+    for (int i = 0; i < nv; i++) {
+        float K = themesh->curv1[i] * themesh->curv2[i];
 		if(K < 0){
-			float c = log(1+scaling_factor*K/KMin);
-			int C = int(min(max(256.0 * c, 0.0), 255.99));
-			gcurv_colors[i] = Color(256-C,256-C,256);
+            float c = log(1+scaling_factor*K/KMin);
+            int C = int(min(max(256.0 * c, 0.0), 255.99));
+            gcurv_colors[i] = Color(256-C,256-C,256);
 		}else{
-			float c = log(1+scaling_factor*K/KMax);
-			int C = int(min(max(256.0 * c, 0.0), 255.99));
-			gcurv_colors[i] = Color(256,256-C,256-C);
+            float c = log(1+scaling_factor*K/KMax);
+            int C = int(min(max(256.0 * c, 0.0), 255.99));
+            gcurv_colors[i] = Color(256,256-C,256-C);
 		}
 	}
+}
+
+// Similar, but mapping of radial curvature
+void compute_rcurv_colors()
+{
+    int nv = themesh->vertices.size();
+    rcurv_colors.resize(nv);
+    float KMax = 0.0;
+    float KMin = 0.0;
+    for (int i = 0; i < nv; i++) {
+        float K = kr[i];
+        if(K>KMax) KMax = K;
+        if(K<KMin) KMin = K;
+    }
+    for (int i = 0; i < nv; i++) {
+        float K = kr[i];
+        if(K < 0){
+            float c = log(1+scaling_factor*K/KMin);
+            int C = int(min(max(256.0 * c, 0.0), 255.99));
+            rcurv_colors[i] = Color(256-C,256-C,256);
+        }else{
+            float c = log(1+scaling_factor*K/KMax);
+            int C = int(min(max(256.0 * c, 0.0), 255.99));
+            rcurv_colors[i] = Color(256,256-C,256-C);
+        }
+    }
 }
     
 bool load_texture( const QString& filename)
@@ -392,6 +416,12 @@ void draw_base_mesh()
         glEnableClientState(GL_COLOR_ARRAY);
         glColorPointer(3, GL_FLOAT, 0,
             &gcurv_colors[0][0]);
+    } else if (color_style == "Radial C.") {
+        if (rcurv_colors.empty())
+            compute_rcurv_colors();
+        glEnableClientState(GL_COLOR_ARRAY);
+        glColorPointer(3, GL_FLOAT, 0,
+            &rcurv_colors[0][0]);
     } else if (color_style == "Mesh") {
         if (themesh->colors.size()) {
             glEnableClientState(GL_COLOR_ARRAY);
@@ -621,6 +651,7 @@ void compute_perview(vector<float> &ndotv, vector<float> &kr,
 
 		// Note:  this is actually Kr * sin^2 theta
 		kr[i] = themesh->curv1[i] * u2 + themesh->curv2[i] * v2;
+        kr[i] /= (1.0f - ndotv[i]*ndotv[i]);
 
 		if (draw_apparent) {
 			float csc2theta = 1.0f / (u2 + v2);
@@ -1736,6 +1767,7 @@ void draw_everything()
 {
 	compute_perview(ndotv, kr, sctest_num, sctest_den, shtest_num,
                     q1, t1, Dt1q1, use_texture);
+    rcurv_colors.resize(0);
     
 	// Enable antialiased lines
 	glEnable(GL_POINT_SMOOTH);
